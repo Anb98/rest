@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const app      = require('./app');
-const config   = require('./config');
+const app      = require('./app/app');
+const config   = require('./app/config');
 
 const port =config.port; 
 //el puerto se asigna segun alguna variable del servidor o 3000
