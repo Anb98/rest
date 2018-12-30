@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="/js/axios.js"></script>
+	<script src='/js/vue.js'></script>
+	<script src="/js/vuex.js"></script>
+	<script src="/js/vue-router.js"></script>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title>Document</title>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div id="contenedor">
+			<router-view></router-view>
+		</div>
+	</div>
+</body>
+
+</html>
+<script src="./componentes/login.js"></script>
+<script src="./componentes/dashboad.js"></script>
+<script src="./componentes/notFound.js"></script>
+<script src="./componentes/registro.js"></script>
+<script type="text/javascript">
+	const middleware = {
+		isAuth(from, to, next){
+			if(!store.getters.isToken)	return next();
+			else return next('/dashboard')
+		},
+		isNotAuth(from, to, next){
+			if(store.getters.isToken)	return next();
+			else return next('/')
+		}
+	}
+	const router = new VueRouter({
+		routes: [
+			{
+				path: '/',
+				name: 'login',
+				component: login,
+				beforeEnter:middleware.isAuth
+			},
+			{
+				path: '/registro',
+				name: 'registro',
+				component: registro,
+				beforeEnter:middleware.isAuth
+			},
+			{
+				path:'/dashboard',
+				name:'home',
+				component:dashboard,
+				beforeEnter:middleware.isNotAuth
+			},
+			{
+				path:'*',
+				name:'notFound',
+				component:notFound,
+			},
+		]
+	})
+
+	const store = new Vuex.Store({
+		state: {
+			token: localStorage.getItem('token-user') || '',
+			nombre: '',
+			email:'',
+		},
+		getters: {
+			isToken(state){
+				return !!state.token;
+			},
+			getToken(state){
+				return state.token;
+			},
+			getProfile(state){
+				return {nombre, email} = state;	//destructuracion es6
+			}
+		},
+		mutations: {
+			setToken(state,payload){
+				state.token = payload;
+			},
+			setProfile(state,payload){
+				state.nombre= payload.nombre;
+				state.email= payload.email;
+			},
+		},
+		actions: {
+			signIn(context,payload){
+				return axios.post('/user/sign',{	
+					email:payload.user,
+					password:payload.pass
+				})
+				.then(res=>{
+					context.commit('setToken',res.data.token);
+					localStorage.setItem('token-user',res.data.token);
+
+					const {nombre, email} = res.data.user[0];
+					context.commit('setProfile',{nombre, email});
+					localStorage.setItem('nombre',nombre);
+					localStorage.setItem('email',email);
+
+					router.push({name:'home'});
+				})
+				.catch(err=>{
+					console.log(err.response.data);
+					localStorage.removeItem('token-user');
+					localStorage.removeItem('nombre');
+					localStorage.removeItem('email');
+				});
+			},
+			signOut(context){
+				//las acciones deben retornar una PROMESA resuelta o rechazada
+				const promesa = new Promise((resolve,reject)=>{
+					context.commit('setToken','');
+					context.commit('setProfile',{nombre:'',email:''});
+					localStorage.removeItem('token-user');
+					localStorage.removeItem('nombre');
+					localStorage.removeItem('email');
+
+					router.push({name:'login'})
+					resolve();
+				});
+				return promesa;
+			}
+		}
+	});
+
+	const app = new Vue({
+		el: '#contenedor',
+		router,
+		components: {
+
+		},
+		methods:{
+		}
+		
+	})
+</script>

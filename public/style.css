@@ -1,0 +1,38 @@
+body {
+  margin: 0px;
+}
+.wrapper {
+  background: linear-gradient(to bottom right, #4886ac, #00ff8f) no-repeat;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#contenedor {
+  background: linear-gradient(to bottom right, rgba(255,255,255,0.35), rgba(255,255,255,0.9));
+  border-radius: 7px;
+  padding: 0 40px 20px 40px;
+  width: 25%;
+}
+#contenedor * {
+  font-family: sans-serif;
+  display: block;
+}
+#contenedor input {
+  font-size: 1em;
+  padding-left: 10px;
+  width: calc(100% - 10px);
+  height: 25px;
+  border: 0;
+  margin-bottom: 1em;
+}
+#contenedor input:last-child {
+  padding-left: 0;
+  width: 100%;
+  background: linear-gradient(rgba(56,161,225,0.2), rgba(72,134,172,0.3));
+  font-size: 1.25em;
+  height: 1.75em;
+}
+#contenedor input:last-child:hover {
+  background: rgba(0,216,202,0.6);
+}
