@@ -67,8 +67,9 @@
 	const store = new Vuex.Store({
 		state: {
 			token: localStorage.getItem('token-user') || '',
-			nombre: '',
-			email:'',
+			nombre: localStorage.getItem('nombre') || '',
+			email:	localStorage.getItem('email') ||'',
+			productos:[]
 		},
 		getters: {
 			isToken(state){
@@ -79,6 +80,9 @@
 			},
 			getProfile(state){
 				return {nombre, email} = state;	//destructuracion es6
+			},
+			getProductos(state){
+				return state.productos;
 			}
 		},
 		mutations: {
@@ -89,6 +93,9 @@
 				state.nombre= payload.nombre;
 				state.email= payload.email;
 			},
+			setProductos(state,payload){
+				state.productos=payload;
+			}
 		},
 		actions: {
 			signIn(context,payload){
@@ -127,6 +134,13 @@
 					resolve();
 				});
 				return promesa;
+			},
+			requestProductos(context){
+				return axios.get('api/producto')
+				.then(res=>{
+					context.commit('setProductos',res.data.registros);
+				})
+				.catch(err=>console.log(err));
 			}
 		}
 	});
